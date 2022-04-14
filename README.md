@@ -10,19 +10,22 @@ This implementation has not been updated to Yolact++.
 ![Example 0](readme_imgs/network.png)
 
 ## Environments  
-PyTorch >= 1.1  
-Python >= 3.6  
-onnxruntime-gpu == 1.6.0 for CUDA 10.2  
-TensorRT == 7.2.3.4  
-tensorboardX  
-Other common packages.  
+See [requirements.txt](requirements.txt)
+(Not all packages are required, some were installed on the system itself. Need to clean up.)
+
 
 ## Prepare
 ```Shell
 # Build cython-nms 
 python setup.py build_ext --inplace
 ```
-- Download COCO 2017 datasets, modify `self.data_root` in 'res101_coco' in `config.py`. 
+- Make directories for data and weights
+
+```Shell
+mkdir data
+mkdir weights
+```
+
 - Download weights.
 
 Yolact trained weights.
