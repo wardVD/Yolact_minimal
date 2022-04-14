@@ -16,3 +16,4 @@ onnx_files
 trt_files
 weights
 tensorboard_log
+*.ipynb_checkpoints*
