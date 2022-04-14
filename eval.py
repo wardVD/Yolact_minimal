@@ -110,8 +110,12 @@ def evaluate(net, cfg, step=None):
 
 if __name__ == '__main__':
     args = parser.parse_args()
-    prefix = re.findall(r'best_\d+\.\d+_', args.weight)[0]
-    suffix = re.findall(r'_\d+\.pth', args.weight)[0]
+    if 'best' in args.weight:
+        prefix = re.findall(r'best_\d+\.\d+_', args.weight)[0]
+        suffix = re.findall(r'_\d+\.pth', args.weight)[0]
+    elif 'latest' in args.weight:
+        prefix = re.findall(r'latest_', args.weight)[0]
+        suffix = re.findall(r'_\d+\.pth', args.weight)[0]
     args.cfg = args.weight.split(prefix)[-1].split(suffix)[0]
     cfg = get_config(args, mode='val')
 

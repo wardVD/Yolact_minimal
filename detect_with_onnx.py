@@ -39,7 +39,8 @@ suffix = re.findall(r'_\d+\.pth', args.weight)[0]
 args.cfg = args.weight.split(prefix)[-1].split(suffix)[0]
 cfg = get_config(args, mode='detect')
 
-sess = ort.InferenceSession(cfg.weight)
+providers = ['CUDAExecutionProvider', 'CPUExecutionProvider'] if cfg.cuda else ['CPUExecutionProvider']
+sess = ort.InferenceSession(cfg.weight, providers=providers)
 input_name = sess.get_inputs()[0].name
 
 anchors = []

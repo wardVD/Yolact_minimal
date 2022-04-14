@@ -14,22 +14,24 @@ os.makedirs('onnx_files/', exist_ok=True)
 os.makedirs('trt_files/', exist_ok=True)
 os.makedirs('tensorboard_log/', exist_ok=True)
 
-COLORS = np.array([[0, 0, 0], [244, 67, 54], [233, 30, 99], [156, 39, 176], [103, 58, 183], [100, 30, 60],
-                   [63, 81, 181], [33, 150, 243], [3, 169, 244], [0, 188, 212], [20, 55, 200],
-                   [0, 150, 136], [76, 175, 80], [139, 195, 74], [205, 220, 57], [70, 25, 100],
-                   [255, 235, 59], [255, 193, 7], [255, 152, 0], [255, 87, 34], [90, 155, 50],
-                   [121, 85, 72], [158, 158, 158], [96, 125, 139], [15, 67, 34], [98, 55, 20],
-                   [21, 82, 172], [58, 128, 255], [196, 125, 39], [75, 27, 134], [90, 125, 120],
-                   [121, 82, 7], [158, 58, 8], [96, 25, 9], [115, 7, 234], [8, 155, 220],
-                   [221, 25, 72], [188, 58, 158], [56, 175, 19], [215, 67, 64], [198, 75, 20],
-                   [62, 185, 22], [108, 70, 58], [160, 225, 39], [95, 60, 144], [78, 155, 120],
-                   [101, 25, 142], [48, 198, 28], [96, 225, 200], [150, 167, 134], [18, 185, 90],
-                   [21, 145, 172], [98, 68, 78], [196, 105, 19], [215, 67, 84], [130, 115, 170],
-                   [255, 0, 255], [255, 255, 0], [196, 185, 10], [95, 167, 234], [18, 25, 190],
-                   [0, 255, 255], [255, 0, 0], [0, 255, 0], [0, 0, 255], [155, 0, 0],
-                   [0, 155, 0], [0, 0, 155], [46, 22, 130], [255, 0, 155], [155, 0, 255],
-                   [255, 155, 0], [155, 255, 0], [0, 155, 255], [0, 255, 155], [18, 5, 40],
-                   [120, 120, 255], [255, 58, 30], [60, 45, 60], [75, 27, 244], [128, 25, 70]], dtype='uint8')
+COLORS = np.array([[0, 0, 0], [20, 55, 200], [233, 30, 99], [156, 39, 176], [103, 58, 183], [100, 30, 60],
+                  [63, 81, 181], [33, 150, 243], [3, 169, 244], [0, 188, 212], [244, 67, 54],
+                  [0, 150, 136], [76, 175, 80], [139, 195, 74], [205, 220, 57], [70, 25, 100],
+                  [255, 235, 59], [255, 193, 7], [255, 152, 0], [255, 87, 34], [90, 155, 50],
+                  [121, 85, 72], [158, 158, 158], [96, 125, 139], [15, 67, 34], [98, 55, 20],
+                  [21, 82, 172], [58, 128, 255], [196, 125, 39], [75, 27, 134], [90, 125, 120],
+                  [121, 82, 7], [158, 58, 8], [96, 25, 9], [115, 7, 234], [8, 155, 220],
+                  [221, 25, 72], [188, 58, 158], [56, 175, 19], [215, 67, 64], [198, 75, 20],
+                  [62, 185, 22], [108, 70, 58], [160, 225, 39], [95, 60, 144], [78, 155, 120],
+                  [101, 25, 142], [48, 198, 28], [96, 225, 200], [150, 167, 134], [18, 185, 90],
+                  [21, 145, 172], [98, 68, 78], [196, 105, 19], [215, 67, 84], [130, 115, 170],
+                  [255, 0, 255], [255, 255, 0], [196, 185, 10], [95, 167, 234], [18, 25, 190],
+                  [0, 255, 255], [255, 0, 0], [0, 255, 0], [0, 0, 255], [155, 0, 0],
+                  [0, 155, 0], [0, 0, 155], [46, 22, 130], [255, 0, 155], [155, 0, 255],
+                  [255, 155, 0], [155, 255, 0], [0, 155, 255], [0, 255, 155], [18, 5, 40],
+                  [120, 120, 255], [255, 58, 30], [60, 45, 60], [75, 27, 244], [128, 25, 70]], dtype='uint8')
+
+# COLORS = np.array([[0, 0, 0], [244, 67, 54], [233, 30, 99]], dtype='uint8')
 
 # 7 classes per row
 COCO_CLASSES = ('person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'train',
@@ -51,6 +53,10 @@ PASCAL_CLASSES = ('aeroplane', 'bicycle', 'bird', 'boat', 'bottle',
                   'pottedplant', 'sheep', 'sofa', 'train', 'tvmonitor')
 
 CUSTOM_CLASSES = ('dog', 'person', 'bear', 'sheep')
+
+DEWULF_CLASSES = ('rock/cloth-poly', 'potato-poly')
+
+DEWULF_LABEL_MAP = {0: 1, 1: 2}
 
 COCO_LABEL_MAP = {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8,
                   9: 9, 10: 10, 11: 11, 13: 12, 14: 13, 15: 14, 16: 15, 17: 16,
@@ -74,9 +80,9 @@ class res101_coco:
         self.gpu_id = args.gpu_id
         assert args.img_size % 32 == 0, f'Img_size must be divisible by 32, got {args.img_size}.'
         self.img_size = args.img_size
-        self.class_names = COCO_CLASSES
-        self.num_classes = len(COCO_CLASSES) + 1
-        self.continuous_id = COCO_LABEL_MAP
+        self.class_names = DEWULF_CLASSES
+        self.num_classes = len(DEWULF_CLASSES) + 1
+        self.continuous_id = DEWULF_LABEL_MAP
         self.scales = [int(self.img_size / 544 * aa) for aa in (24, 48, 96, 192, 384)]
         self.aspect_ratios = [1, 1 / 2, 2]
 
@@ -85,11 +91,13 @@ class res101_coco:
         else:
             self.weight = args.weight
 
-        self.data_root = '/home/feiyu/Data/'
+        self.data_root = '/home/jupyter/Yolact_minimal/data/'
 
         if self.mode == 'train':
-            self.train_imgs = self.data_root + 'coco2017/train2017/'
-            self.train_ann = self.data_root + 'coco2017/annotations/instances_train2017.json'
+            self.train_imgs = self.data_root + 'dewulf_resized/images_train/'
+            self.train_ann = self.data_root + 'dewulf_resized/coco-train-extended.json'            
+            # self.train_imgs = self.data_root + 'coco/images/train2017/'
+            # self.train_ann = self.data_root + 'coco/annotations/instances_train2017.json'
             self.train_bs = args.train_bs
             self.bs_per_gpu = args.bs_per_gpu
             self.val_interval = args.val_interval
@@ -112,8 +120,10 @@ class res101_coco:
             self.masks_to_train = 100
 
         if self.mode in ('train', 'val'):
-            self.val_imgs = self.data_root + 'coco2017/val2017/'
-            self.val_ann = self.data_root + 'coco2017/annotations/instances_val2017.json'
+            self.val_imgs = self.data_root + 'dewulf_resized/images_val/'
+            self.val_ann = self.data_root + 'dewulf_resized/coco-val-extended.json'
+            # self.val_imgs = self.data_root + 'coco2017/images/val2017/'
+            # self.val_ann = self.data_root + 'coco2017/annotations/instances_val2017.json'
             self.val_bs = 1
             self.val_num = args.val_num
             self.coco_api = args.coco_api
@@ -178,23 +188,14 @@ class res50_pascal(res101_coco):
             self.val_imgs = self.data_root + 'pascal_sbd/img'
             self.val_ann = self.data_root + 'pascal_sbd/pascal_sbd_val.json'
 
-
+            
 class res101_custom(res101_coco):
     def __init__(self, args):
         super().__init__(args)
-        self.class_names = CUSTOM_CLASSES
-        self.num_classes = len(self.class_names) + 1
-        self.continuous_id = {(aa + 1): (aa + 1) for aa in range(self.num_classes - 1)}
 
         if self.mode == 'train':
-            self.train_imgs = 'custom_dataset/'
-            self.train_ann = 'custom_dataset/custom_ann.json'
             self.warmup_until = 100  # just an example
             self.lr_steps = (0, 1200, 1600, 2000)  # just an example
-
-        if self.mode in ('train', 'val'):
-            self.val_imgs = ''  # decide by yourself
-            self.val_ann = ''
 
 
 class res50_custom(res101_coco):

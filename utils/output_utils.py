@@ -6,7 +6,7 @@ import numpy as np
 from config import COLORS
 from cython_nms import nms as cnms
 import pdb
-
+import pickle
 
 def fast_nms(box_thre, coef_thre, class_thre, cfg):
     class_thre, idx = class_thre.sort(1, descending=True)  # [80, 64 (the number of kept boxes)]
@@ -319,12 +319,28 @@ def draw_img(ids_p, class_p, box_p, mask_p, img_origin, cfg, img_name=None, fps=
 
     img_fused = img_origin
     if not cfg.hide_mask:
-        masks_semantic = mask_p * (ids_p[:, None, None] + 1)  # expand ids_p' shape for broadcasting
+        with open('mask_p.p','wb') as outfile:
+            pickle.dump(mask_p, outfile)        
+        with open('class_p.p','wb') as outfile:
+            pickle.dump(class_p, outfile)
+        with open('ids_p.p','wb') as outfile:
+            pickle.dump(ids_p, outfile)
+        with open('im.p','wb') as outfile:
+            pickle.dump(img_origin, outfile)
+        # masks_semantic = mask_p * (ids_p[:, None, None] + 1)  # expand ids_p' shape for broadcasting
         # The color of the overlap area is different because of the '%' operation.
-        masks_semantic = masks_semantic.astype('int').sum(axis=0) % (cfg.num_classes - 1)
-        color_masks = COLORS[masks_semantic].astype('uint8')
-        img_fused = cv2.addWeighted(color_masks, 0.4, img_origin, 0.6, gamma=0)
+        # masks_semantic = masks_semantic.astype('int').sum(axis=0) % (cfg.num_classes - 1)
+        # color_masks = COLORS[masks_semantic].astype('uint8')
+        # img_fused = cv2.addWeighted(color_masks, 0.4, img_origin, 0.9, gamma=0)
+        new_img = img_origin.copy()
+        for i,mask in enumerate(mask_p):
+            color_id = ids_p[i] + 1
+            color = COLORS[color_id]
+            new_img[mask == 1] = color
+        # img_fused = new_img
+        img_fused = cv2.addWeighted(new_img, 0.3, img_origin, 0.7, 0, new_img)
 
+        
         if cfg.cutout:
             total_obj = (masks_semantic != 0)[:, :, None].repeat(3, 2)
             total_obj = total_obj * img_origin
@@ -354,8 +370,8 @@ def draw_img(ids_p, class_p, box_p, mask_p, img_origin, cfg, img_name=None, fps=
             text_str = f'{class_name}: {class_p[i]:.2f}' if not cfg.hide_score else class_name
 
             text_w, text_h = cv2.getTextSize(text_str, font, scale, thickness)[0]
-            cv2.rectangle(img_fused, (x1, y1), (x1 + text_w, y1 + text_h + 5), color, -1)
-            cv2.putText(img_fused, text_str, (x1, y1 + 15), font, scale, (255, 255, 255), thickness, cv2.LINE_AA)
+            # cv2.rectangle(img_fused, (x1, y1), (x1 + text_w, y1 + text_h + 5), color, -1)
+            # cv2.putText(img_fused, text_str, (x1, y1 + 15), font, scale, (255, 255, 255), thickness, cv2.LINE_AA)
 
     if cfg.real_time:
         fps_str = f'fps: {fps:.2f}'

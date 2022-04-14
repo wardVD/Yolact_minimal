@@ -27,7 +27,7 @@ net.eval().cuda()
 
 img_tensor = torch.randn((1, 3, cfg.img_size, cfg.img_size), device='cuda')
 torch.onnx.export(net, img_tensor, f'onnx_files/{args.cfg}.onnx', verbose=False,
-                  opset_version=args.opset, enable_onnx_checker=True)
+                  opset_version=args.opset) #, enable_onnx_checker=True)
 
 sess = ort.InferenceSession(f'onnx_files/{args.cfg}.onnx')
 input_name = sess.get_inputs()[0].name

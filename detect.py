@@ -35,8 +35,12 @@ def main():
                         help='Detections with a score under this threshold will be removed.')
 
     args = parser.parse_args()
-    prefix = re.findall(r'best_\d+\.\d+_', args.weight)[0]
-    suffix = re.findall(r'_\d+\.pth', args.weight)[0]
+    if 'best' in args.weight:
+        prefix = re.findall(r'best_\d+\.\d+_', args.weight)[0]
+        suffix = re.findall(r'_\d+\.pth', args.weight)[0]
+    elif 'latest' in args.weight:
+        prefix = re.findall(r'latest_', args.weight)[0]
+        suffix = re.findall(r'_\d+\.pth', args.weight)[0]
     args.cfg = args.weight.split(prefix)[-1].split(suffix)[0]
     cfg = get_config(args, mode='detect')
 
@@ -76,6 +80,7 @@ def main():
             with timer.counter('after_nms'):
                 ids_p, class_p, boxes_p, masks_p = after_nms(ids_p, class_p, box_p, coef_p, proto_p,
                                                             img_h, img_w, cfg, img_name=img_name)
+                print(masks_p.shape)
 
             with timer.counter('save_img'):
                 img_numpy = draw_img(ids_p, class_p, boxes_p, masks_p, img_origin, cfg, img_name=img_name)
