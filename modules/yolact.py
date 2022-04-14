@@ -95,13 +95,13 @@ class Yolact(nn.Module):
         self.cfg = cfg
         self.coef_dim = 32
 
-        if cfg.__class__.__name__.startswith('res101'):
+        if 'res101' in cfg.__class__.__name__:
             self.backbone = ResNet(layers=(3, 4, 23, 3))
             self.fpn = FPN(in_channels=(512, 1024, 2048))
-        elif cfg.__class__.__name__.startswith('res50'):
+        elif 'res50' in cfg.__class__.__name__:
             self.backbone = ResNet(layers=(3, 4, 6, 3))
             self.fpn = FPN(in_channels=(512, 1024, 2048))
-        elif cfg.__class__.__name__.startswith('swin_tiny'):
+        elif 'swin_tiny' in cfg.__class__.__name__:
             self.backbone = SwinTransformer()
             self.fpn = FPN(in_channels=(192, 384, 768))
 

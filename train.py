@@ -59,7 +59,7 @@ dataset = COCODetection(cfg, mode='train')
 
 if 'res' in cfg.__class__.__name__:
     optimizer = optim.SGD(net.parameters(), lr=cfg.lr, momentum=0.9, weight_decay=5e-4)
-elif cfg.__class__.__name__ == 'swin_tiny_coco':
+elif 'swin_tiny' in cfg.__class__.__name__:
     optimizer = optim.AdamW(net.parameters(), lr=cfg.lr, weight_decay=0.05)
 else:
     raise ValueError('Unrecognized cfg.')

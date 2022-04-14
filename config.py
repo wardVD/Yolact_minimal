@@ -54,9 +54,11 @@ PASCAL_CLASSES = ('aeroplane', 'bicycle', 'bird', 'boat', 'bottle',
 
 CUSTOM_CLASSES = ('dog', 'person', 'bear', 'sheep')
 
+DEWULF_COLORS = np.array([[0, 0, 0], [163, 76, 39], [235, 229, 52]], dtype='uint8')
+
 DEWULF_CLASSES = ('rock/cloth-poly', 'potato-poly')
 
-DEWULF_LABEL_MAP = {0: 1, 1: 2}
+DEWULF_LABEL_MAP = {1: 1, 2: 2}
 
 COCO_LABEL_MAP = {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8,
                   9: 9, 10: 10, 11: 11, 13: 12, 14: 13, 15: 14, 16: 15, 17: 16,
@@ -80,9 +82,9 @@ class res101_coco:
         self.gpu_id = args.gpu_id
         assert args.img_size % 32 == 0, f'Img_size must be divisible by 32, got {args.img_size}.'
         self.img_size = args.img_size
-        self.class_names = DEWULF_CLASSES
-        self.num_classes = len(DEWULF_CLASSES) + 1
-        self.continuous_id = DEWULF_LABEL_MAP
+        self.class_names = COCO_CLASSES
+        self.num_classes = len(COCO_CLASSES) + 1
+        self.continuous_id = COCO_LABEL_MAP
         self.scales = [int(self.img_size / 544 * aa) for aa in (24, 48, 96, 192, 384)]
         self.aspect_ratios = [1, 1 / 2, 2]
 
@@ -91,13 +93,11 @@ class res101_coco:
         else:
             self.weight = args.weight
 
-        self.data_root = '/home/jupyter/Yolact_minimal/data/'
+        self.data_root = '/home/feiyu/Data/'
 
         if self.mode == 'train':
-            self.train_imgs = self.data_root + 'dewulf_resized/images_train/'
-            self.train_ann = self.data_root + 'dewulf_resized/coco-train-extended.json'            
-            # self.train_imgs = self.data_root + 'coco/images/train2017/'
-            # self.train_ann = self.data_root + 'coco/annotations/instances_train2017.json'
+            self.train_imgs = self.data_root + 'coco2017/train2017/'
+            self.train_ann = self.data_root + 'coco2017/annotations/instances_train2017.json'           
             self.train_bs = args.train_bs
             self.bs_per_gpu = args.bs_per_gpu
             self.val_interval = args.val_interval
@@ -120,10 +120,8 @@ class res101_coco:
             self.masks_to_train = 100
 
         if self.mode in ('train', 'val'):
-            self.val_imgs = self.data_root + 'dewulf_resized/images_val/'
-            self.val_ann = self.data_root + 'dewulf_resized/coco-val-extended.json'
-            # self.val_imgs = self.data_root + 'coco2017/images/val2017/'
-            # self.val_ann = self.data_root + 'coco2017/annotations/instances_val2017.json'
+            self.val_imgs = self.data_root + 'coco2017/val2017/'
+            self.val_ann = self.data_root + 'coco2017/annotations/instances_val2017.json'
             self.val_bs = 1
             self.val_num = args.val_num
             self.coco_api = args.coco_api
@@ -165,7 +163,37 @@ class swin_tiny_coco(res101_coco):
         else:
             self.weight = args.weight
 
+            
+class dewulf_swin_tiny(res101_coco):
+    def __init__(self, args):
+        super().__init__(args)
+        self.class_names = DEWULF_CLASSES
+        self.num_classes = len(DEWULF_CLASSES) + 1
+        self.continuous_id = DEWULF_LABEL_MAP
+        
+        self.data_root = '/home/jupyter/Yolact_minimal/data/'
 
+        if self.mode == 'train':
+            self.train_imgs = self.data_root + 'dewulf_resized/images_train'
+            self.train_ann = self.data_root + 'dewulf_resized/coco-train-extended.json'
+            
+            self.warmup_until = 100  # just an example
+            self.lr_steps = (0, 1200, 1600, 2000)  # just an example
+            
+            self.weight = args.resume if args.resume else 'weights/swin_tiny.pth'
+            self.lr = 0.00005 * self.bs_factor
+
+        if self.mode in ('train', 'val'):
+            self.val_imgs = self.data_root + 'dewulf_resized/images_val'
+            self.val_ann = self.data_root + 'dewulf_resized/coco-val-extended.json'
+            
+        if self.mode == 'train':
+            self.weight = args.resume if args.resume else 'weights/swin_tiny.pth'
+            self.lr = 0.00005 * self.bs_factor
+        else:
+            self.weight = args.weight
+
+            
 class res50_pascal(res101_coco):
     def __init__(self, args):
         super().__init__(args)
@@ -223,6 +251,7 @@ class res50_custom(res101_coco):
 def get_config(args, mode):
     args.cuda = torch.cuda.is_available()
     args.mode = mode
+    print(args.mode)
 
     if args.cuda:
         args.gpu_id = os.environ.get('CUDA_VISIBLE_DEVICES') if os.environ.get('CUDA_VISIBLE_DEVICES') else '0'
