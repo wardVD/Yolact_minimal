@@ -8,6 +8,7 @@ from cython_nms import nms as cnms
 import pdb
 import pickle
 
+
 def fast_nms(box_thre, coef_thre, class_thre, cfg):
     class_thre, idx = class_thre.sort(1, descending=True)  # [80, 64 (the number of kept boxes)]
 
