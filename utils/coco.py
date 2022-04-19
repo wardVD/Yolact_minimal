@@ -106,7 +106,7 @@ class COCODetection(data.Dataset):
                 assert masks.shape == (boxes.shape[0], height, width), 'Unmatched annotations.'
 
                 if self.mode == 'train':
-                    img, masks, boxes, labels = train_aug(img, masks, boxes, labels, self.cfg.img_size)
+                    img, masks, boxes, labels = train_aug(img, masks, boxes, labels, self.cfg.img_size, use_augmentation=self.cfg.use_augmentation)
                     if img is None:
                         return None, None, None
                     else:

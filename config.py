@@ -87,6 +87,7 @@ class res101_coco:
         self.continuous_id = COCO_LABEL_MAP
         self.scales = [int(self.img_size / 544 * aa) for aa in (24, 48, 96, 192, 384)]
         self.aspect_ratios = [1, 1 / 2, 2]
+        self.use_augmentation = True
 
         if self.mode == 'train':
             self.weight = args.resume if args.resume else 'weights/backbone_res101.pth'
@@ -192,7 +193,37 @@ class dewulf_swin_tiny(res101_coco):
             self.lr = 0.00005 * self.bs_factor
         else:
             self.weight = args.weight
+            
 
+class dewulfsingle_swin_tiny(dewulf_swin_tiny):
+    def __init__(self, args):
+        super().__init__(args)
+        self.use_augmentation = False
+        self.data_root = '/home/jupyter/Yolact_minimal/data/'
+
+        if self.mode == 'train':
+            self.train_imgs = self.data_root + 'dewulf_resized/images_train'
+            self.train_ann = self.data_root + 'dewulf_resized/coco-train-single.json'
+
+        if self.mode in ('train', 'val'):
+            self.val_imgs = self.train_imgs
+            self.val_ann = self.train_ann
+
+            
+class dewulfsinglehard_swin_tiny(dewulf_swin_tiny):
+    def __init__(self, args):
+        super().__init__(args)
+        self.use_augmentation = False
+        self.data_root = '/home/jupyter/Yolact_minimal/data/'
+
+        if self.mode == 'train':
+            self.train_imgs = self.data_root + 'dewulf_resized/images_train'
+            self.train_ann = self.data_root + 'dewulf_resized/coco-train-singlehard.json'
+
+        if self.mode in ('train', 'val'):
+            self.val_imgs = self.train_imgs
+            self.val_ann = self.train_ann
+            
             
 class res50_pascal(res101_coco):
     def __init__(self, args):

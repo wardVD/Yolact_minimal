@@ -227,12 +227,13 @@ def val_aug(img, val_size):
     return img
 
 
-def train_aug(img, masks, boxes, labels, train_size):
+def train_aug(img, masks, boxes, labels, train_size, use_augmentation=True):
     # show_ann(img, masks, boxes, labels)
     img = img.astype('float32')
-    img = photometric_distort(img)
-    img, masks, boxes = random_mirror(img, masks, boxes)
-    img, masks, boxes, labels = random_crop(img, masks, boxes, labels, crop_ratio=(0.6, 1))
+    if use_augmentation:
+        img = photometric_distort(img)
+        img, masks, boxes = random_mirror(img, masks, boxes)
+        img, masks, boxes, labels = random_crop(img, masks, boxes, labels, crop_ratio=(0.6, 1))
     if img is None:
         return None, None, None, None
     img, masks, boxes = pad_to_square(img, masks, boxes, during_training=True)
