@@ -14,6 +14,7 @@ os.makedirs('onnx_files/', exist_ok=True)
 os.makedirs('trt_files/', exist_ok=True)
 os.makedirs('tensorboard_log/', exist_ok=True)
 
+
 COLORS = np.array([[0, 0, 0], [20, 55, 200], [233, 30, 99], [156, 39, 176], [103, 58, 183], [100, 30, 60],
                   [63, 81, 181], [33, 150, 243], [3, 169, 244], [0, 188, 212], [244, 67, 54],
                   [0, 150, 136], [76, 175, 80], [139, 195, 74], [205, 220, 57], [70, 25, 100],
@@ -30,8 +31,6 @@ COLORS = np.array([[0, 0, 0], [20, 55, 200], [233, 30, 99], [156, 39, 176], [103
                   [0, 155, 0], [0, 0, 155], [46, 22, 130], [255, 0, 155], [155, 0, 255],
                   [255, 155, 0], [155, 255, 0], [0, 155, 255], [0, 255, 155], [18, 5, 40],
                   [120, 120, 255], [255, 58, 30], [60, 45, 60], [75, 27, 244], [128, 25, 70]], dtype='uint8')
-
-# COLORS = np.array([[0, 0, 0], [244, 67, 54], [233, 30, 99]], dtype='uint8')
 
 # 7 classes per row
 COCO_CLASSES = ('person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'train',
@@ -88,6 +87,7 @@ class res101_coco:
         self.scales = [int(self.img_size / 544 * aa) for aa in (24, 48, 96, 192, 384)]
         self.aspect_ratios = [1, 1 / 2, 2]
         self.use_augmentation = True
+        self.color_schema = COLORS
 
         if self.mode == 'train':
             self.weight = args.resume if args.resume else 'weights/backbone_res101.pth'
@@ -171,6 +171,7 @@ class dewulf_swin_tiny(res101_coco):
         self.class_names = DEWULF_CLASSES
         self.num_classes = len(DEWULF_CLASSES) + 1
         self.continuous_id = DEWULF_LABEL_MAP
+        self.color_schema = DEWULF_COLORS
         
         self.data_root = '/home/jupyter/Yolact_minimal/data/'
 
@@ -200,6 +201,7 @@ class dewulfsingle_swin_tiny(dewulf_swin_tiny):
         super().__init__(args)
         self.use_augmentation = False
         self.data_root = '/home/jupyter/Yolact_minimal/data/'
+        self.color_schema = DEWULF_COLORS
 
         if self.mode == 'train':
             self.train_imgs = self.data_root + 'dewulf_resized/images_train'
@@ -215,6 +217,7 @@ class dewulfsinglehard_swin_tiny(dewulf_swin_tiny):
         super().__init__(args)
         self.use_augmentation = False
         self.data_root = '/home/jupyter/Yolact_minimal/data/'
+        self.color_schema = DEWULF_COLORS
 
         if self.mode == 'train':
             self.train_imgs = self.data_root + 'dewulf_resized/images_train'

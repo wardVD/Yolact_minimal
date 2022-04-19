@@ -33,6 +33,8 @@ def main():
     parser.add_argument('--real_time', default=False, action='store_true', help='Show the detection results real-timely.')
     parser.add_argument('--visual_thre', default=0.3, type=float,
                         help='Detections with a score under this threshold will be removed.')
+    parser.add_argument('--single_instance', default=False, action='store_true',
+                        help='Visualise single instances or with class color?')
 
     args = parser.parse_args()
     if 'best' in args.weight:
@@ -83,7 +85,7 @@ def main():
                 print(masks_p.shape)
 
             with timer.counter('save_img'):
-                img_numpy = draw_img(ids_p, class_p, boxes_p, masks_p, img_origin, cfg, img_name=img_name)
+                img_numpy = draw_img(ids_p, class_p, boxes_p, masks_p, img_origin, cfg, img_name=img_name, single_instance=args.single_instance)
                 cv2.imwrite(f'results/images/{img_name}', img_numpy)
 
             aa = time.perf_counter()
@@ -142,7 +144,7 @@ def main():
                 ids_p, class_p, boxes_p, masks_p = after_nms(ids_p, class_p, box_p, coef_p, proto_p, img_h, img_w, cfg)
 
             with timer.counter('save_img'):
-                frame_numpy = draw_img(ids_p, class_p, boxes_p, masks_p, frame_origin, cfg, fps=t_fps)
+                frame_numpy = draw_img(ids_p, class_p, boxes_p, masks_p, frame_origin, cfg, fps=t_fps, single_instance=args.single_instance)
 
             if cfg.real_time:
                 cv2.imshow('Detection', frame_numpy)

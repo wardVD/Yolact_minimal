@@ -33,7 +33,8 @@ parser.add_argument('--no_crop', default=False, action='store_true',
 parser.add_argument('--real_time', default=False, action='store_true', help='Show the detection results real-timely.')
 parser.add_argument('--visual_thre', default=0.3, type=float,
                     help='Detections with a score under this threshold will be removed.')
-
+parser.add_argument('--single_instance', default=False, action='store_true',
+                    help='Visualise single instances or with class color?')
 args = parser.parse_args()
 # prefix = re.findall(r'best_\d+\.\d+_', args.weight)[0]
 # suffix = re.findall(r'_\d+\.pth', args.weight)[0]
@@ -78,7 +79,7 @@ if cfg.image is not None:
                                                                proto_p, img_h, img_w, cfg)
 
         with timer.counter('save_img'):
-            img_numpy = draw_img(ids_p, class_p, boxes_p, masks_p, img_origin, cfg, img_name=img_name)
+            img_numpy = draw_img(ids_p, class_p, boxes_p, masks_p, img_origin, cfg, img_name=img_name, single_instance=args.single_instance)
             cv2.imwrite(f'results/onnx_images/{img_name}', img_numpy)
 
         aa = time.perf_counter()
@@ -134,7 +135,7 @@ elif cfg.video is not None:
                                                                proto_p, img_h, img_w, cfg)
 
         with timer.counter('save_img'):
-            frame_numpy = draw_img(ids_p, class_p, boxes_p, masks_p, frame_origin, cfg, fps=t_fps)
+            frame_numpy = draw_img(ids_p, class_p, boxes_p, masks_p, frame_origin, cfg, fps=t_fps, single_instance=args.single_instance)
 
         if cfg.real_time:
             cv2.imshow('Detection', frame_numpy)

@@ -3,7 +3,6 @@ import cv2
 from utils.box_utils import crop, box_iou, box_iou_numpy, crop_numpy
 import torch
 import numpy as np
-from config import COLORS
 from cython_nms import nms as cnms
 import pdb
 import pickle
@@ -306,7 +305,7 @@ def draw_lincomb(proto_data, masks, img_name):
         cv2.imwrite(f'results/images/lincomb_{img_name}', arr_img)
 
 
-def draw_img(ids_p, class_p, box_p, mask_p, img_origin, cfg, img_name=None, fps=None):
+def draw_img(ids_p, class_p, box_p, mask_p, img_origin, cfg, img_name=None, fps=None, single_instance=False):
     if ids_p is None:
         return img_origin
 
@@ -320,14 +319,6 @@ def draw_img(ids_p, class_p, box_p, mask_p, img_origin, cfg, img_name=None, fps=
 
     img_fused = img_origin
     if not cfg.hide_mask:
-        with open('mask_p.p','wb') as outfile:
-            pickle.dump(mask_p, outfile)        
-        with open('class_p.p','wb') as outfile:
-            pickle.dump(class_p, outfile)
-        with open('ids_p.p','wb') as outfile:
-            pickle.dump(ids_p, outfile)
-        with open('im.p','wb') as outfile:
-            pickle.dump(img_origin, outfile)
         # masks_semantic = mask_p * (ids_p[:, None, None] + 1)  # expand ids_p' shape for broadcasting
         # The color of the overlap area is different because of the '%' operation.
         # masks_semantic = masks_semantic.astype('int').sum(axis=0) % (cfg.num_classes - 1)
@@ -336,7 +327,10 @@ def draw_img(ids_p, class_p, box_p, mask_p, img_origin, cfg, img_name=None, fps=
         new_img = img_origin.copy()
         for i,mask in enumerate(mask_p):
             color_id = ids_p[i] + 1
-            color = COLORS[color_id]
+            if single_instance:
+                color = list(np.random.choice(range(256), size=3))
+            else:
+                color = cfg.color_schema[color_id][::-1]  # RGB to BGR
             new_img[mask == 1] = color
         # img_fused = new_img
         img_fused = cv2.addWeighted(new_img, 0.3, img_origin, 0.7, 0, new_img)
@@ -364,7 +358,7 @@ def draw_img(ids_p, class_p, box_p, mask_p, img_origin, cfg, img_name=None, fps=
         for i in reversed(range(num_detected)):
             x1, y1, x2, y2 = box_p[i, :]
 
-            color = COLORS[ids_p[i] + 1].tolist()
+            color = cfg.color_schema[ids_p[i] + 1].tolist()[::-1]  # RGB to BGR
             cv2.rectangle(img_fused, (x1, y1), (x2, y2), color, thickness)
 
             class_name = cfg.class_names[ids_p[i]]
